@@ -88,9 +88,7 @@
 
       }
     },
-    {
-            "comments": "Generalized from resource: '/subscriptions/3d68a81a-c96c-4709-bad5-e438ad1e2890/resourceGroups/RGR/providers/Microsoft.Compute/virtualMachineScaleSets/vmscaleset'.",
-            "type": "Microsoft.Compute/virtualMachineScaleSets",
+    {       "type": "Microsoft.Compute/virtualMachineScaleSets",
             "sku": {
                 "name": "Standard_D1_v2",
                 "tier": "Standard",
@@ -169,7 +167,7 @@
             ]
         },
         {
-            "comments": "Generalized from resource: '/subscriptions/3d68a81a-c96c-4709-bad5-e438ad1e2890/resourceGroups/RGR/providers/Microsoft.Network/loadBalancers/vmscalesetLb'.",
+            
             "type": "Microsoft.Network/loadBalancers",
             "name": "[parameters('loadBalancers_vmscalesetLb_name')]",
             "apiVersion": "2017-03-01",
@@ -294,7 +292,7 @@
             ]
         },
         {
-            "comments": "Generalized from resource: '/subscriptions/3d68a81a-c96c-4709-bad5-e438ad1e2890/resourceGroups/RGR/providers/Microsoft.Network/publicIPAddresses/ip01'.",
+            
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[parameters('publicIPAddresses_ip01_name')]",
             "apiVersion": "2017-03-01",
