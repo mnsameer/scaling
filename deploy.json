@@ -96,7 +96,7 @@
             },
             "name": "[parameters('virtualMachineScaleSets_vmscaleset_name')]",
             "apiVersion": "2016-04-30-preview",
-            "location": "westus",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
                 "singlePlacementGroup": true,
@@ -171,7 +171,7 @@
             "type": "Microsoft.Network/loadBalancers",
             "name": "[parameters('loadBalancers_vmscalesetLb_name')]",
             "apiVersion": "2017-03-01",
-            "location": "westus",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
                 "frontendIPConfigurations": [
@@ -296,7 +296,7 @@
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[parameters('publicIPAddresses_ip01_name')]",
             "apiVersion": "2017-03-01",
-            "location": "westus",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
                 "publicIPAllocationMethod": "Dynamic",
