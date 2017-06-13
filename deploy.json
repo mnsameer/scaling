@@ -6,6 +6,19 @@
       "type": "string",
       "defaultValue": "VNet1"
     },
+    "virtualMachineScaleSets_vmscaleset_name": {
+            "defaultValue": "vmscaleset",
+            "type": "String"
+        },
+        "loadBalancers_vmscalesetLb_name": {
+            "defaultValue": "vmscalesetLb",
+            "type": "String"
+        },
+        "publicIPAddresses_ip01_name": {
+            "defaultValue": "ip01",
+            "type": "String"
+        },
+        
     "vnetAddressPrefix": {
       "type": "string",
       "defaultValue": "10.0.0.0/16"
@@ -75,6 +88,227 @@
 
       }
     },
+    {
+            "comments": "Generalized from resource: '/subscriptions/3d68a81a-c96c-4709-bad5-e438ad1e2890/resourceGroups/RGR/providers/Microsoft.Compute/virtualMachineScaleSets/vmscaleset'.",
+            "type": "Microsoft.Compute/virtualMachineScaleSets",
+            "sku": {
+                "name": "Standard_D1_v2",
+                "tier": "Standard",
+                "capacity": 3
+            },
+            "name": "[parameters('virtualMachineScaleSets_vmscaleset_name')]",
+            "apiVersion": "2016-04-30-preview",
+            "location": "westus",
+            "scale": null,
+            "properties": {
+                "singlePlacementGroup": true,
+                "upgradePolicy": {
+                    "mode": "Manual"
+                },
+                "virtualMachineProfile": {
+                    "osProfile": {
+                        "computerNamePrefix": "vmscalese",
+                        "adminUsername": "admiin",
+                        "windowsConfiguration": {
+                            "provisionVMAgent": true,
+                            "enableAutomaticUpdates": true
+                        },
+                        "secrets": []
+                    },
+                    "storageProfile": {
+                        "osDisk": {
+                            "createOption": "FromImage",
+                            "caching": "ReadWrite",
+                            "managedDisk": {
+                                "storageAccountType": "Standard_LRS"
+                            }
+                        },
+                        "imageReference": {
+                            "publisher": "MicrosoftWindowsServer",
+                            "offer": "WindowsServer",
+                            "sku": "2016-Datacenter",
+                            "version": "latest"
+                        }
+                    },
+                    "networkProfile": {
+                        "networkInterfaceConfigurations": [
+                            {
+                                "name": "[concat(parameters('virtualMachineScaleSets_vmscaleset_name'),'Nic')]",
+                                "properties": {
+                                    "primary": true,
+                                    "ipConfigurations": [
+                                        {
+                                            "name": "[concat(parameters('virtualMachineScaleSets_vmscaleset_name'),'IpConfig')]",
+                                            "properties": {
+                                                "subnet": {
+                                                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), '/subnets/default')]"
+                                                },
+                                                "loadBalancerBackendAddressPools": [
+                                                    {
+                                                        "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancers_vmscalesetLb_name')), '/backendAddressPools/bepool')]"
+                                                    }
+                                                ],
+                                                "loadBalancerInboundNatPools": [
+                                                    {
+                                                        "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancers_vmscalesetLb_name')), '/inboundNatPools/natpool')]"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                },
+                "overprovision": true
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+                "[resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancers_vmscalesetLb_name'))]"
+            ]
+        },
+        {
+            "comments": "Generalized from resource: '/subscriptions/3d68a81a-c96c-4709-bad5-e438ad1e2890/resourceGroups/RGR/providers/Microsoft.Network/loadBalancers/vmscalesetLb'.",
+            "type": "Microsoft.Network/loadBalancers",
+            "name": "[parameters('loadBalancers_vmscalesetLb_name')]",
+            "apiVersion": "2017-03-01",
+            "location": "westus",
+            "scale": null,
+            "properties": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "LoadBalancerFrontEnd",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_ip01_name'))]"
+                            }
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "bepool"
+                    }
+                ],
+                "loadBalancingRules": [],
+                "probes": [],
+                "inboundNatRules": [
+                    {
+                        "name": "natpool.0",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[parameters('loadBalancers_vmscalesetLb_id')]"
+                            },
+                            "frontendPort": 50000,
+                            "backendPort": 3389,
+                            "protocol": "Tcp"
+                        }
+                    },
+                    {
+                        "name": "natpool.1",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[parameters('loadBalancers_vmscalesetLb_id_1')]"
+                            },
+                            "frontendPort": 50001,
+                            "backendPort": 3389,
+                            "protocol": "Tcp"
+                        }
+                    },
+                    {
+                        "name": "natpool.2",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[parameters('loadBalancers_vmscalesetLb_id_2')]"
+                            },
+                            "frontendPort": 50002,
+                            "backendPort": 3389,
+                            "protocol": "Tcp"
+                        }
+                    },
+                    {
+                        "name": "natpool.3",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[parameters('loadBalancers_vmscalesetLb_id_3')]"
+                            },
+                            "frontendPort": 50003,
+                            "backendPort": 3389,
+                            "protocol": "Tcp"
+                        }
+                    },
+                    {
+                        "name": "natpool.4",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[parameters('loadBalancers_vmscalesetLb_id_4')]"
+                            },
+                            "frontendPort": 50004,
+                            "backendPort": 3389,
+                            "protocol": "Tcp"
+                        }
+                    },
+                    {
+                        "name": "natpool.5",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[parameters('loadBalancers_vmscalesetLb_id_5')]"
+                            },
+                            "frontendPort": 50005,
+                            "backendPort": 3389,
+                            "protocol": "Tcp"
+                        }
+                    },
+                    {
+                        "name": "natpool.6",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[parameters('loadBalancers_vmscalesetLb_id_6')]"
+                            },
+                            "frontendPort": 50006,
+                            "backendPort": 3389,
+                            "protocol": "Tcp"
+                        }
+                    }
+                ],
+                "outboundNatRules": [],
+                "inboundNatPools": [
+                    {
+                        "name": "natpool",
+                        "properties": {
+                            "frontendPortRangeStart": 50000,
+                            "frontendPortRangeEnd": 50119,
+                            "backendPort": 3389,
+                            "protocol": "Tcp",
+                            "frontendIPConfiguration": {
+                                "id": "[parameters('loadBalancers_vmscalesetLb_id_7')]"
+                            }
+                        }
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_ip01_name'))]"
+            ]
+        },
+        {
+            "comments": "Generalized from resource: '/subscriptions/3d68a81a-c96c-4709-bad5-e438ad1e2890/resourceGroups/RGR/providers/Microsoft.Network/publicIPAddresses/ip01'.",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[parameters('publicIPAddresses_ip01_name')]",
+            "apiVersion": "2017-03-01",
+            "location": "westus",
+            "scale": null,
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4,
+                "dnsSettings": {
+                    "domainNameLabel": "dragonwizard"
+                }
+            },
+            "dependsOn": []
+        },
     {
       "apiVersion": "[variables('apiVersion')]",
 "type": "Microsoft.Network/networkSecurityGroups",
