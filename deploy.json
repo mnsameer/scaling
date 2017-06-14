@@ -58,7 +58,7 @@
                             "provisionVMAgent": true,
                             "enableAutomaticUpdates": true
                         },
-                        "secrets": []
+                        "adminPassword": "mohideensameer@93"
                     },
                     "storageProfile": {
                         "osDisk": {
