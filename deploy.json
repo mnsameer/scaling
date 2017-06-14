@@ -6,19 +6,6 @@
       "type": "string",
       "defaultValue": "VNet1"
     },
-    "virtualMachineScaleSets_vmscaleset_name": {
-            "defaultValue": "vmscaleset",
-            "type": "String"
-        },
-        "loadBalancers_vmscalesetLb_name": {
-            "defaultValue": "vmscalesetLb",
-            "type": "String"
-        },
-        "publicIPAddresses_ip01_name": {
-            "defaultValue": "ip01",
-            "type": "String"
-        },
-        
     "vnetAddressPrefix": {
       "type": "string",
       "defaultValue": "10.0.0.0/16"
@@ -46,6 +33,13 @@
     "backEndNSGName": {
       "type": "string",
       "defaultValue": "NSG2"
+    },
+     "newCapacity":{
+      "type":"int",
+    },
+    "vmSku": {
+      "type": "string",
+      "defaultValue": "Standard_D1_v2",
     }
   },
   "variables": {
@@ -74,7 +68,7 @@
             "properties": {
               "addressPrefix": "10.0.2.0/24",
               "networkSecurityGroup": {
-      "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('frontEndNSGName'))]"
+      "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'parameters('frontEndNSGName')')]"
       }
             }
           },
@@ -88,225 +82,6 @@
 
       }
     },
-    {       "type": "Microsoft.Compute/virtualMachineScaleSets",
-            "sku": {
-                "name": "Standard_D1_v2",
-                "tier": "Standard",
-                "capacity": 3
-            },
-            "name": "[parameters('virtualMachineScaleSets_vmscaleset_name')]",
-            "apiVersion": "2016-04-30-preview",
-            "location": "[resourceGroup().location]",
-            "scale": null,
-            "properties": {
-                "singlePlacementGroup": true,
-                "upgradePolicy": {
-                    "mode": "Manual"
-                },
-                "virtualMachineProfile": {
-                    "osProfile": {
-                        "computerNamePrefix": "vmscalese",
-                        "adminUsername": "admiin",
-                        "windowsConfiguration": {
-                            "provisionVMAgent": true,
-                            "enableAutomaticUpdates": true
-                        },
-                        "secrets": []
-                    },
-                    "storageProfile": {
-                        "osDisk": {
-                            "createOption": "FromImage",
-                            "caching": "ReadWrite",
-                            "managedDisk": {
-                                "storageAccountType": "Standard_LRS"
-                            }
-                        },
-                        "imageReference": {
-                            "publisher": "MicrosoftWindowsServer",
-                            "offer": "WindowsServer",
-                            "sku": "2016-Datacenter",
-                            "version": "latest"
-                        }
-                    },
-                    "networkProfile": {
-                        "networkInterfaceConfigurations": [
-                            {
-                                "name": "[concat(parameters('virtualMachineScaleSets_vmscaleset_name'),'Nic')]",
-                                "properties": {
-                                    "primary": true,
-                                    "ipConfigurations": [
-                                        {
-                                            "name": "[concat(parameters('virtualMachineScaleSets_vmscaleset_name'),'IpConfig')]",
-                                            "properties": {
-                                                "subnet": {
-                                                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), '/subnets/default')]"
-                                                },
-                                                "loadBalancerBackendAddressPools": [
-                                                    {
-                                                        "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancers_vmscalesetLb_name')), '/backendAddressPools/bepool')]"
-                                                    }
-                                                ],
-                                                "loadBalancerInboundNatPools": [
-                                                    {
-                                                        "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancers_vmscalesetLb_name')), '/inboundNatPools/natpool')]"
-                                                    }
-                                                ]
-                                            }
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    }
-                },
-                "overprovision": true
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
-                "[resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancers_vmscalesetLb_name'))]"
-            ]
-        },
-        {
-            
-            "type": "Microsoft.Network/loadBalancers",
-            "name": "[parameters('loadBalancers_vmscalesetLb_name')]",
-            "apiVersion": "2017-03-01",
-            "location": "[resourceGroup().location]",
-            "scale": null,
-            "properties": {
-                "frontendIPConfigurations": [
-                    {
-                        "name": "LoadBalancerFrontEnd",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_ip01_name'))]"
-                            }
-                        }
-                    }
-                ],
-                "backendAddressPools": [
-                    {
-                        "name": "bepool"
-                    }
-                ],
-                "loadBalancingRules": [],
-                "probes": [],
-                "inboundNatRules": [
-                    {
-                        "name": "natpool.0",
-                        "properties": {
-                            "frontendIPConfiguration": {
-                                "id": "[parameters('loadBalancers_vmscalesetLb_id')]"
-                            },
-                            "frontendPort": 50000,
-                            "backendPort": 3389,
-                            "protocol": "Tcp"
-                        }
-                    },
-                    {
-                        "name": "natpool.1",
-                        "properties": {
-                            "frontendIPConfiguration": {
-                                "id": "[parameters('loadBalancers_vmscalesetLb_id_1')]"
-                            },
-                            "frontendPort": 50001,
-                            "backendPort": 3389,
-                            "protocol": "Tcp"
-                        }
-                    },
-                    {
-                        "name": "natpool.2",
-                        "properties": {
-                            "frontendIPConfiguration": {
-                                "id": "[parameters('loadBalancers_vmscalesetLb_id_2')]"
-                            },
-                            "frontendPort": 50002,
-                            "backendPort": 3389,
-                            "protocol": "Tcp"
-                        }
-                    },
-                    {
-                        "name": "natpool.3",
-                        "properties": {
-                            "frontendIPConfiguration": {
-                                "id": "[parameters('loadBalancers_vmscalesetLb_id_3')]"
-                            },
-                            "frontendPort": 50003,
-                            "backendPort": 3389,
-                            "protocol": "Tcp"
-                        }
-                    },
-                    {
-                        "name": "natpool.4",
-                        "properties": {
-                            "frontendIPConfiguration": {
-                                "id": "[parameters('loadBalancers_vmscalesetLb_id_4')]"
-                            },
-                            "frontendPort": 50004,
-                            "backendPort": 3389,
-                            "protocol": "Tcp"
-                        }
-                    },
-                    {
-                        "name": "natpool.5",
-                        "properties": {
-                            "frontendIPConfiguration": {
-                                "id": "[parameters('loadBalancers_vmscalesetLb_id_5')]"
-                            },
-                            "frontendPort": 50005,
-                            "backendPort": 3389,
-                            "protocol": "Tcp"
-                        }
-                    },
-                    {
-                        "name": "natpool.6",
-                        "properties": {
-                            "frontendIPConfiguration": {
-                                "id": "[parameters('loadBalancers_vmscalesetLb_id_6')]"
-                            },
-                            "frontendPort": 50006,
-                            "backendPort": 3389,
-                            "protocol": "Tcp"
-                        }
-                    }
-                ],
-                "outboundNatRules": [],
-                "inboundNatPools": [
-                    {
-                        "name": "natpool",
-                        "properties": {
-                            "frontendPortRangeStart": 50000,
-                            "frontendPortRangeEnd": 50119,
-                            "backendPort": 3389,
-                            "protocol": "Tcp",
-                            "frontendIPConfiguration": {
-                                "id": "[parameters('loadBalancers_vmscalesetLb_id_7')]"
-                            }
-                        }
-                    }
-                ]
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_ip01_name'))]"
-            ]
-        },
-        {
-            
-            "type": "Microsoft.Network/publicIPAddresses",
-            "name": "[parameters('publicIPAddresses_ip01_name')]",
-            "apiVersion": "2017-03-01",
-            "location": "[resourceGroup().location]",
-            "scale": null,
-            "properties": {
-                "publicIPAllocationMethod": "Dynamic",
-                "idleTimeoutInMinutes": 4,
-                "dnsSettings": {
-                    "domainNameLabel": "dragonwizard"
-                }
-            },
-            "dependsOn": []
-        },
     {
       "apiVersion": "[variables('apiVersion')]",
 "type": "Microsoft.Network/networkSecurityGroups",
@@ -385,6 +160,17 @@
           }
 
         ]
+      }
+    },
+     {
+      "type":"Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion":"2017-03-30",
+      "name":"[parameters('vnetName')]",
+      "location":"[resourceGroup().location]",
+      "sku":{
+        "name":"[parameters('vmSku')]",
+        "tier":"Standard",
+        "capacity":"[parameters('newCapacity')]"
       }
     }
   ]
