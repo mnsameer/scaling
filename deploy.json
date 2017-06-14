@@ -36,6 +36,7 @@
     },
      "newCapacity":{
       "type":"int",
+       "defaultValue": 2
     },
     "vmSku": {
       "type": "string",
