@@ -87,17 +87,8 @@
                                             "properties": {
                                                 "subnet": {
                                                     "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vmssVnet_name')), '/subnets/default')]"
-                                                },
-                                                "loadBalancerBackendAddressPools": [
-                                                    {
-                                                        "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancers_vmssLb_name')), '/backendAddressPools/bepool')]"
-                                                    }
-                                                ],
-                                                "loadBalancerInboundNatPools": [
-                                                    {
-                                                        "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancers_vmssLb_name')), '/inboundNatPools/natpool')]"
-                                                    }
-                                                ]
+                                                }
+                                                
                                             }
                                         }
                                     ]
@@ -109,8 +100,8 @@
                 "overprovision": true
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vmssVnet_name'))]",
-                "[resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancers_vmssLb_name'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vmssVnet_name'))]"
+                
             ]
         },
         {
@@ -180,65 +171,8 @@
                 "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('virtualMachineScaleSets_vmss_name'))]"
             ]
         },
-        {
-            "comments": "Generalized from resource: '/subscriptions/3d68a81a-c96c-4709-bad5-e438ad1e2890/resourceGroups/scaleset/providers/Microsoft.Network/loadBalancers/vmssLb'.",
-            "type": "Microsoft.Network/loadBalancers",
-            "name": "[parameters('loadBalancers_vmssLb_name')]",
-            "apiVersion": "2017-03-01",
-            "location": "westus",
-            "scale": null,
-            "properties": {
-                "frontendIPConfigurations": [
-                    {
-                        "name": "LoadBalancerFrontEnd",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_ip01_name'))]"
-                            }
-                        }
-                    }
-                ],
-                "backendAddressPools": [
-                    {
-                        "name": "bepool"
-                    }
-                ],
-                "loadBalancingRules": [],
-                "probes": [],
-                "inboundNatRules": [
-                    {
-                        "name": "natpool.1",
-                        "properties": {
-                            "frontendIPConfiguration": {
-                                "id": "[parameters('loadBalancers_vmssLb_id')]"
-                            },
-                            "frontendPort": 50001,
-                            "backendPort": 3389,
-                            "protocol": "Tcp"
-                        }
-                    }
-                ],
-                "outboundNatRules": [],
-                "inboundNatPools": [
-                    {
-                        "name": "natpool",
-                        "properties": {
-                            "frontendPortRangeStart": 50000,
-                            "frontendPortRangeEnd": 50119,
-                            "backendPort": 3389,
-                            "protocol": "Tcp",
-                            "frontendIPConfiguration": {
-                                "id": "[parameters('loadBalancers_vmssLb_id_1')]"
-                            }
-                        }
-                    }
-                ]
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_ip01_name'))]"
-            ]
-        },
+        
+        
         {
             "comments": "Generalized from resource: '/subscriptions/3d68a81a-c96c-4709-bad5-e438ad1e2890/resourceGroups/scaleset/providers/Microsoft.Network/publicIPAddresses/ip01'.",
             "type": "Microsoft.Network/publicIPAddresses",
