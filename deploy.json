@@ -171,9 +171,7 @@
                 "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('virtualMachineScaleSets_vmss_name'))]"
             ]
         },
-        
-        
-        {
+      {
             "comments": "Generalized from resource: '/subscriptions/3d68a81a-c96c-4709-bad5-e438ad1e2890/resourceGroups/scaleset/providers/Microsoft.Network/publicIPAddresses/ip01'.",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[parameters('publicIPAddresses_ip01_name')]",
