@@ -43,7 +43,7 @@
                 "tier": "Standard",
                 "capacity": 1
             },
-            "name": "[concat(parameters('virtualMachineScaleSets_vmss_name'),copyIndex())]",
+            "name": "[concat(parameters('virtualMachineScaleSets_vmss_name'),parameters('index'))]",
             "apiVersion": "2016-04-30-preview",
             "location": "westus",
             "scale": null,
@@ -58,7 +58,7 @@
                     
                     "osProfile": 
                     {
-                        "computerNamePrefix": "[concat(parameters('virtualMachineScaleSets_vmss_name'),'57pxx')]",
+                        "computerNamePrefix": "[concat(parameters('virtualMachineScaleSets_vmss_name'),parameters('index'))]",
                         "adminUsername": "admiin",
                         "windowsConfiguration": 
                         {
@@ -88,15 +88,15 @@
                     "networkProfile": {
                         "networkInterfaceConfigurations": [
                             {
-                                "name": "[concat(parameters('virtualMachineScaleSets_vmss_name'),'Nic',copyIndex())]",
+                                "name": "[concat(parameters('virtualMachineScaleSets_vmss_name'),'Nic',parameters('index'))]",
                                 "properties": {
                                     "primary": true,
                                     "ipConfigurations": [
                                         {
-                                            "name": "[concat(parameters('virtualMachineScaleSets_vmss_name'),'IpConfig',copyIndex())]",
+                                            "name": "[concat(parameters('virtualMachineScaleSets_vmss_name'),'IpConfig',parameters('index'))]",
                                             "properties": {
                                                 "subnet": {
-                                                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vmssVnet_name')), copyIndex(),'/subnets/default')]"
+                                                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vmssVnet_name')), parameters('index'),'/subnets/default')]"
                                                 }
                                                 
                                             }
@@ -114,7 +114,7 @@
         {
             
             "type": "microsoft.insights/autoscalesettings",
-            "name": "[concat(parameters('autoscalesettings_cpuautoscale_name'),copyIndex())]",
+            "name": "[concat(parameters('autoscalesettings_cpuautoscale_name'),parameters('index'))]",
             "apiVersion": "2014-04-01",
             "location": "westus",
             "tags": {},
@@ -180,7 +180,7 @@
         {
             
             "type": "Microsoft.Network/publicIPAddresses",
-            "name": "[concat(parameters('publicIPAddresses_ip01_name'),copyIndex())]",
+            "name": "[concat(parameters('publicIPAddresses_ip01_name'),parameters('index'))]",
             "apiVersion": "2017-03-01",
             "location": "westus",
             "scale": null,
@@ -188,7 +188,7 @@
                 "publicIPAllocationMethod": "Dynamic",
                 "idleTimeoutInMinutes": 4,
                 "dnsSettings": {
-                    "domainNameLabel": "[concat('dragonwizard',copyIndex())]"
+                    "domainNameLabel": "[concat('dragonwizard',parameters('index'))]"
                 }
             },
             "dependsOn": []
@@ -196,7 +196,7 @@
         {
             
             "type": "Microsoft.Network/virtualNetworks",
-            "name": "[concat(parameters('virtualNetworks_vmssVnet_name'),copyIndex()]",
+            "name": "[concat(parameters('virtualNetworks_vmssVnet_name'),parameters('index'))]",
             "apiVersion": "2017-03-01",
             "location": "westus",
             "scale": null,
