@@ -171,7 +171,7 @@
                     }
                 ],
                 "enabled": true,
-                "name": "[parameters('autoscalesettings_cpuautoscale_name')]",
+                "name": "[concat(parameters('autoscalesettings_cpuautoscale_name'),parameters('index'))]",
                 "targetResourceUri": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('virtualMachineScaleSets_vmss_name'))]"
             }
         },
