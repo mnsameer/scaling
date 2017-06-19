@@ -5,9 +5,9 @@
         "org": { 
             "type": "array", 
             "defaultValue": [ 
-                "contoso", 
-                "fabrikam", 
-                "coho" 
+                "con", 
+                "fab", 
+                "coh" 
                 ] 
   }
     },
