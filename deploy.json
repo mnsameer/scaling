@@ -11,7 +11,7 @@
     }
 },
 "variables": {
-    "templatelink": "[concat('https://raw.githubusercontent.com/mnsameer/scaling/master/',parameters('newOrExisting'),'deploy.json')]"
+    "templatelink": "[concat('https://raw.githubusercontent.com/mnsameer/scaling/master/',parameters('newOrExisting'),'deploy')]"
 },
 "resources": [
     {
