@@ -78,7 +78,7 @@
     "udCount": 5
   }
   },
-  "resources": [
+  "resources": [{
     "name": "master-node",
 "type": "Microsoft.Resources/deployments",
 "apiVersion": "2015-01-01",
@@ -130,6 +130,6 @@
       }
     }
   }
-
+  }
   ]
 }
