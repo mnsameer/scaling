@@ -1,202 +1,135 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {
-    "adminUsername": {
-      "type": "string",
-      "metadata": {
-        "description": "Admin username for VM"
-      }
-    },
-    "adminPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Admin password for VM"
-      }
-    },
-    "newStorageAccountName": {
-      "type": "string",
-      "metadata": {
-        "description": "Unique storage account name"
-      }
-    },
-    "numberOfInstances": {
-      "type": "int",
-      "defaultValue": 2,
-      "metadata": {
-        "description": "Number of VMs to deploy"
-      }
-    },
-    "location": {
-      "type": "string",
-      "allowedValues": [
-        "West US",
-        "East US",
-        "West Europe",
-        "East Asia",
-        "Southeast Asia"
-      ],
-      "metadata": {
-        "description": "Location to deploy the VM in"
-      }
-    },
-    "vmSize": {
-      "type": "string",
-      "metadata": {
-        "description": "Size of the Virtual Machine."
-      }
-    },
-    "imagePublisher": {
-      "type": "string",
-      "defaultValue": "Canonical",
-      "metadata": {
-        "description": "Image Publisher"
-      }
-    },
-    "imageOffer": {
-      "type": "string",
-      "defaultValue": "UbuntuServer",
-      "metadata": {
-        "description": "Image Offer"
-      }
-    },
-    "imageSKU": {
-      "type": "string",
-      "defaultValue": "14.04.2-LTS",
-      "metadata": {
-        "description": "Image SKU"
+  "parameters": {  },
+  "variables": {
+     "tshirtSize": "[variables(concat('tshirtSize', parameters('tshirtSize')))]",
+  "tshirtSizeSmall": {
+    "vmSize": "Standard_A1",
+    "diskSize": 1023,
+    "vmTemplate": "[concat(variables('templateBaseUrl'), 'database-2disk-resources.json')]",
+    "vmCount": 2,
+    "storage": {
+      "name": "[parameters('storageAccountNamePrefix')]",
+      "count": 1,
+      "pool": "db",
+      "map": [0,0],
+      "jumpbox": 0
+    }
+  },
+  "tshirtSizeMedium": {
+    "vmSize": "Standard_A3",
+    "diskSize": 1023,
+    "vmTemplate": "[concat(variables('templateBaseUrl'), 'database-8disk-resources.json')]",
+    "vmCount": 2,
+    "storage": {
+      "name": "[parameters('storageAccountNamePrefix')]",
+      "count": 2,
+      "pool": "db",
+      "map": [0,1],
+      "jumpbox": 0
+    }
+  },
+  "tshirtSizeLarge": {
+    "vmSize": "Standard_A4",
+    "diskSize": 1023,
+    "vmTemplate": "[concat(variables('templateBaseUrl'), 'database-16disk-resources.json')]",
+    "vmCount": 3,
+    "slaveCount": 2,
+    "storage": {
+      "name": "[parameters('storageAccountNamePrefix')]",
+      "count": 2,
+      "pool": "db",
+      "map": [0,1,1],
+      "jumpbox": 0
+    }
+  },
+  "osSettings": {
+    "scripts": [
+      "[concat(variables('templateBaseUrl'), 'install_postgresql.sh')]",
+      "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/shared_scripts/ubuntu/vm-disk-utils-0.1.sh"
+    ],
+    "imageReference": {
+      "publisher": "Canonical",
+      "offer": "UbuntuServer",
+      "sku": "14.04.2-LTS",
+      "version": "latest"
+    }
+  },
+  "networkSettings": {
+    "vnetName": "[parameters('virtualNetworkName')]",
+    "addressPrefix": "10.0.0.0/16",
+    "subnets": {
+      "dmz": {
+        "name": "dmz",
+        "prefix": "10.0.0.0/24",
+        "vnet": "[parameters('virtualNetworkName')]"
+      },
+      "data": {
+        "name": "data",
+        "prefix": "10.0.1.0/24",
+        "vnet": "[parameters('virtualNetworkName')]"
       }
     }
   },
-  "variables": {
-    "virtualNetworkName": "myVNET",
-    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-    "addressPrefix": "10.0.0.0/16",
-    "subnet1Name": "Subnet-1",
-    "subnet1Prefix": "10.0.0.0/24",
-    "subnet1Ref": "[concat(variables('vnetID'),'/subnets/', variables('subnet1Name'))]",
-    "vmStorageAccountContainerName": "vhds"
+  "availabilitySetSettings": {
+    "name": "pgsqlAvailabilitySet",
+    "fdCount": 3,
+    "udCount": 5
+  }
   },
   "resources": [
-    {
-      "type": "Microsoft.Storage/storageAccounts",
-      "name": "[parameters('newStorageAccountName')]",
-      "apiVersion": "2015-05-01-preview",
-      "location": "[parameters('location')]",
-      "properties": {
-        "accountType": "Standard_LRS"
-      }
+    "name": "master-node",
+"type": "Microsoft.Resources/deployments",
+"apiVersion": "2015-01-01",
+"dependsOn": [
+    "[concat('Microsoft.Resources/deployments/', 'shared')]"
+],
+"properties": {
+    "mode": "Incremental",
+    "templateLink": {
+      "uri": "[variables('tshirtSize').vmTemplate]",
+      "contentVersion": "1.0.0.0"
     },
-    {
-      "apiVersion": "2015-05-01-preview",
-      "type": "Microsoft.Network/virtualNetworks",
-      "name": "[variables('virtualNetworkName')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[variables('addressPrefix')]"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "[variables('subnet1Name')]",
-            "properties": {
-              "addressPrefix": "[variables('subnet1Prefix')]"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "2015-05-01-preview",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[concat('publicIP', copyIndex())]",
-      "location": "[parameters('location')]",
-      "copy": {
-        "name": "publicIPLoop",
-        "count": "[parameters('numberOfInstances')]"
+    "parameters": {
+      "adminPassword": {
+        "value": "[parameters('adminPassword')]"
       },
-      "properties": {
-        "publicIPAllocationMethod": "Dynamic"
-      }
-    },
-    {
-      "apiVersion": "2015-05-01-preview",
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[concat('nic', copyindex())]",
-      "location": "[parameters('location')]",
-      "copy": {
-        "name": "nicLoop",
-        "count": "[parameters('numberOfInstances')]"
+      "replicatorPassword": {
+        "value": "[parameters('replicatorPassword')]"
       },
-      "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-        "[concat('Microsoft.Network/publicIPAddresses/', 'publicIP', copyindex())]"
-      ],
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat('publicIP', copyindex()))]"
-              },
-              "subnet": {
-                "id": "[variables('subnet1Ref')]"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "2015-05-01-preview",
-      "type": "Microsoft.Compute/virtualMachines",
-      "name": "[concat('myvm', copyIndex())]",
-      "location": "[parameters('location')]",
-      "copy": {
-        "name": "virtualMachineLoop",
-        "count": "[parameters('numberOfInstances')]"
+      "osSettings": {
+        "value": "[variables('osSettings')]"
       },
-      "dependsOn": [
-        "[concat('Microsoft.Network/networkInterfaces/', 'nic', copyindex())]",
-        "[concat('Microsoft.Storage/storageAccounts/', parameters('newStorageAccountName'))]"
-      ],
-      "properties": {
-        "hardwareProfile": {
-          "vmSize": "[parameters('vmSize')]"
-        },
-        "osProfile": {
-          "computername": "[concat('vm', copyIndex())]",
+      "subnet": {
+        "value": "[variables('networkSettings').subnets.data]"
+      },
+      "commonSettings": {
+        "value": {
+          "region": "[parameters('region')]",
           "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
-        },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "[parameters('imagePublisher')]",
-            "offer": "[parameters('imageOffer')]",
-            "sku": "[parameters('imageSKU')]",
-            "version": "latest"
-          },
-          "osDisk": {
-            "name": "osdisk",
-            "vhd": {
-              "uri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/vhds/','osdisk', copyIndex(), '.vhd')]"
-            },
-            "caching": "ReadWrite",
-            "createOption": "FromImage"
-          }
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat('nic', copyindex()))]"
-            }
-          ]
+          "namespace": "ms"
         }
+      },
+      "storageSettings": {
+        "value":"[variables('tshirtSize').storage]"
+      },
+      "machineSettings": {
+        "value": {
+          "vmSize": "[variables('tshirtSize').vmSize]",
+          "diskSize": "[variables('tshirtSize').diskSize]",
+          "vmCount": 1,
+          "availabilitySet": "[variables('availabilitySetSettings').name]"
+        }
+      },
+      "masterIpAddress": {
+        "value": "0"
+      },
+      "dbType": {
+        "value": "MASTER"
       }
     }
+  }
+
   ]
 }
