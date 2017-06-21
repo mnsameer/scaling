@@ -10,6 +10,7 @@
       ]
     },
     "dev": {
+      "name": "development",
         "type": "object",
           "value":{
             "name":"VNet1",
@@ -33,6 +34,7 @@
     },
     "prod":
     {
+      "name": "production",
       "type": "object",
       "value": {
           "storageAccountType": "Standard_GRS"
