@@ -29,7 +29,7 @@
       "apiVersion": "2016-01-01",
       "location": "[resourceGroup().location]",
       "sku": {
-          "name": "[parameters('prod').storageAccountType.name]"
+          "name": "[parameters('prod').storageAccountType.value]"
       },
       "kind": "Storage", 
       "properties": {
