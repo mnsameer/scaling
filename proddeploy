@@ -5,9 +5,6 @@
     "prod": {
       "type":"object"
     },
-    "dev": {
-      "type":"object"
-    },
     "storageAccountType": {
       "type": "string",
       "defaultValue": "Standard_LRS",
