@@ -2,16 +2,45 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "newOrExisting": {
-        "type": "String",
-        "allowedValues": [
-            "new",
-            "existing"
-        ]
+    "environment":
+    {
+      "type": "string",
+      "allowedValues": [
+        "dev", "prod"
+      ]
+    },
+    "dev": {
+        "type": "object",
+          "value":{
+            "name":"VNet1",
+            "addressPrefixes": [
+                {
+                    "name": "firstPrefix",
+                    "addressPrefix": "10.0.0.0/22"
+                }
+            ],
+            "subnets":[
+                {
+                    "name": "firstSubnet",
+                    "addressPrefix": "10.0.0.0/24"
+                },
+                {
+                    "name":"secondSubnet",
+                    "addressPrefix":"10.0.1.0/24"
+                }
+            ]
+        }
+    },
+    "prod":
+    {
+      "type": "object",
+      "value": {
+          "storageAccountType": "Standard_GRS"
+                }
     }
-},
+  },
 "variables": {
-    "templatelink": "[concat('https://raw.githubusercontent.com/mnsameer/scaling/master/',parameters('newOrExisting'),'deploy')]"
+    "templatelink": "[concat('https://raw.githubusercontent.com/mnsameer/scaling/master/',parameters('environment'),'deploy')]"
 },
 "resources": [
     {
@@ -24,8 +53,12 @@
                 "uri": "[variables('templatelink')]",
                 "contentVersion": "1.0.0.0"
             },
-            "parameters": {
-            }
+        
+          "parameters": {
+          "environment": {
+            "value": "[parameters('environment')]"
+          }
+        }
         }
     }
 ]
