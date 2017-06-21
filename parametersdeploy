@@ -8,7 +8,10 @@
     {
 
       "value": {
-          "storageAccountType": "Standard_GRS"
+          "storageAccountType":
+          {
+          "value": "Standard_GRS"
+          }
                 }
     }
   },
